@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Downloader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    input, select {
+      width: 300px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .status {
+      margin-top: 1rem;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTube Downloader</h1>
+  <input type="text" id="ytLink" placeholder="Paste YouTube link here" />
+  <select id="format">
+    <option value="mp4">MP4 (Video)</option>
+    <option value="mp3">MP3 (Audio)</option>
+  </select>
+  <button onclick="download()">Download</button>
+  <div class="status" id="status"></div>
+
+  <script>
+    function download() {
+      const link = document.getElementById('ytLink').value.trim();
+      const format = document.getElementById('format').value;
+      const status = document.getElementById('status');
+
+      if (!link) {
+        status.textContent = "Please enter a valid YouTube URL.";
+        return;
+      }
+
+      // Simulate download
+      status.textContent = `Starting download for ${format.toUpperCase()}...`;
+
+      // In a real app, you'd make a request to your backend here
+      setTimeout(() => {
+        status.textContent = `✅ Your ${format.toUpperCase()} is ready (this is just a mockup).`;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

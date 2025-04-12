@@ -34,56 +34,53 @@
   <p id="status"></p>
 
   <script>
-    async function download() {
-      const link = document.getElementById('ytLink').value.trim();
+    async function startDownload() {
+      const url = document.getElementById('ytLink').value.trim();
       const format = document.getElementById('format').value;
       const status = document.getElementById('status');
-
-      if (!link) {
-        status.textContent = "⚠️ Please enter a valid YouTube URL.";
-        return;
-      }
-
-      status.textContent = "⏳ Processing your request...";
+      status.textContent = "Starting download...";
 
       try {
-        // Send request to start download
-        const res = await fetch("/download", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: link, format: format })
+        const res = await fetch('/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, format })
         });
 
-        if (!res.ok) {
-          const error = await res.json();
-          status.textContent = `❌ Error: ${error.error}`;
-          return;
-        }
-
         const data = await res.json();
-        const filename = data.filename;
-
-        if (!filename) {
-          status.textContent = "❌ Server error: no file received.";
+        if (!res.ok) {
+          status.textContent = `❌ Error: ${data.error}`;
           return;
         }
 
-        status.textContent = "📦 File ready, starting download...";
+        const { uid, file_url } = data;
+        status.textContent = "🔄 Processing video...";
 
-        // Wait a moment before downloading to ensure it's served
-        setTimeout(() => {
-          const a = document.createElement("a");
-          a.href = `/file/${filename}`;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          status.textContent = "✅ Download started!";
-        }, 1000);
+        // Poll for status
+        let pollInterval = setInterval(async () => {
+          const check = await fetch(`/status/${uid}`);
+          const result = await check.json();
+          if (result.status === 'ready') {
+            clearInterval(pollInterval);
+            status.textContent = "✅ Ready! Downloading...";
 
+            const a = document.createElement('a');
+            a.href = file_url;
+            a.download = '';
+            a.click();
+
+            // Cleanup after download
+            setTimeout(() => {
+              fetch(`/cleanup/${file_url.split('/').pop()}`, { method: 'DELETE' });
+            }, 5000);
+          } else if (result.status.startsWith('error')) {
+            clearInterval(pollInterval);
+            status.textContent = `❌ ${result.status}`;
+          }
+        }, 3000);
       } catch (err) {
         console.error(err);
-        status.textContent = "❌ Failed to connect to the server.";
+        status.textContent = "❌ Network error";
       }
     }
   </script>

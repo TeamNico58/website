@@ -47,15 +47,20 @@
       status.textContent = "⏳ Processing your request...";
 
       try {
-        const res = await fetch("http://https://fe29-99-106-85-136.ngrok-free.app/download", {
+        const formData = new URLSearchParams();
+        formData.append("url", link);
+        formData.append("format", format);
+
+        const res = await fetch("https://fe29-99-106-85-136.ngrok-free.app/download", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: link, format: format })
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData
         });
 
         if (!res.ok) {
-          const error = await res.json();
-          status.textContent = `❌ Error: ${error.error}`;
+          status.textContent = `❌ Server error (${res.status})`;
           return;
         }
 
@@ -63,7 +68,9 @@
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = `download.${format}`;
+        document.body.appendChild(a); // Required for Firefox
         a.click();
+        a.remove();
 
         status.textContent = "✅ Download started!";
       } catch (err) {

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Send a Message to Developers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00ffff;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+
+    input, textarea {
+      background: #2c2c2c;
+      color: #fff;
+    }
+
+    button {
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .thanks {
+      font-size: 1.5em;
+      color: #00ffff;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="formContainer">
+  <h2>Contact the Developers</h2>
+  <input type="text" id="name" placeholder="Your Name" required>
+  <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<div class="thanks hidden" id="thankYou">
+  <p>Thanks!</p>
+</div>
+
+<script>
+  async function sendMessage() {
+    const name = document.getElementById('name').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !message) {
+      alert("Please fill out both fields.");
+      return;
+    }
+
+    const webhookUrl = "https://discord.com/api/webhooks/1360755605001994426/lAw48PFW0TAfLAG-ALd47vZJB12wtnywQHJS91YXC5QcxGcUyEokGUFjyYrtzGQWNBqi"; // ← replace this with your real Discord webhook
+
+    const payload = {
+      username: "Website Feedback",
+      embeds: [{
+        title: "New Message",
+        fields: [
+          { name: "Name", value: name },
+          { name: "Message", value: message }
+        ],
+        color: 5814783
+      }]
+    };
+
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // Show thank you message
+      document.getElementById('formContainer').classList.add('hidden');
+      document.getElementById('thankYou').classList.remove('hidden');
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("There was an error sending your message.");
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -34,59 +34,48 @@
   <p id="status"></p>
 
   <script>
-    const SERVER_URL = 'https://fe29-99-106-85-136.ngrok-free.app';
-
-    async function startDownload() {
-      const url = document.getElementById('ytLink').value.trim();
+    async function download() {
+      const link = document.getElementById('ytLink').value.trim();
       const format = document.getElementById('format').value;
       const status = document.getElementById('status');
-      status.textContent = "Starting download...";
+
+      if (!link) {
+        status.textContent = "⚠️ Please enter a valid YouTube URL.";
+        return;
+      }
+
+      status.textContent = "⏳ Processing your request...";
 
       try {
-        const res = await fetch(`${SERVER_URL}/download`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, format })
+        const formData = new URLSearchParams();
+        formData.append("url", link);
+        formData.append("format", format);
+
+        const res = await fetch("https://fe29-99-106-85-136.ngrok-free.app/download", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: formData
         });
 
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          status.textContent = `❌ Error: ${data.error}`;
+        if (!res.ok) {
+          status.textContent = `❌ Server error (${res.status})`;
           return;
         }
 
-        const { uid, file_url } = data;
-        status.textContent = "🔄 Processing video...";
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `download.${format}`;
+        document.body.appendChild(a); // Required for Firefox
+        a.click();
+        a.remove();
 
-        // Poll for status every 3 seconds
-        let pollInterval = setInterval(async () => {
-          const check = await fetch(`${SERVER_URL}/status/${uid}`);
-          const result = await check.json();
-
-          if (result.status === 'ready') {
-            clearInterval(pollInterval);
-            status.textContent = "✅ Ready! Downloading...";
-
-            const a = document.createElement('a');
-            a.href = `${SERVER_URL}${file_url}`;
-            a.download = '';
-            a.click();
-
-            // Optional: Cleanup request after 5 seconds
-            setTimeout(() => {
-              fetch(`${SERVER_URL}/cleanup/${file_url.split('/').pop()}`, {
-                method: 'DELETE'
-              });
-            }, 5000);
-
-          } else if (result.status.startsWith('error')) {
-            clearInterval(pollInterval);
-            status.textContent = `❌ ${result.status}`;
-          }
-        }, 3000);
+        status.textContent = "✅ Download started!";
       } catch (err) {
         console.error(err);
-        status.textContent = "❌ Network error";
+        status.textContent = "❌ Failed to connect to the server.";
       }
     }
   </script>

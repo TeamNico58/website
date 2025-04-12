@@ -34,50 +34,46 @@
   <p id="status"></p>
 
   <script>
-    async function download() {
-      const link = document.getElementById('ytLink').value.trim();
-      const format = document.getElementById('format').value;
-      const status = document.getElementById('status');
+async function download() {
+  const link = document.getElementById('ytLink').value.trim();
+  const format = document.getElementById('format').value;
+  const status = document.getElementById('status');
 
-      if (!link) {
-        status.textContent = "⚠️ Please enter a valid YouTube URL.";
-        return;
-      }
+  if (!link) {
+    status.textContent = "⚠️ Please enter a valid YouTube URL.";
+    return;
+  }
 
-      status.textContent = "⏳ Processing your request...";
+  status.textContent = "⏳ Processing your request...";
 
-      try {
-        const formData = new URLSearchParams();
-        formData.append("url", link);
-        formData.append("format", format);
+  try {
+    const res = await fetch("https://fe29-99-106-85-136.ngrok-free.app/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: link, format: format })
+    });
 
-        const res = await fetch("https://fe29-99-106-85-136.ngrok-free.app/download", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: formData
-        });
+    const data = await res.json();
 
-        if (!res.ok) {
-          status.textContent = `❌ Server error (${res.status})`;
-          return;
-        }
-
-        const blob = await res.blob();
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `download.${format}`;
-        document.body.appendChild(a); // Required for Firefox
-        a.click();
-        a.remove();
-
-        status.textContent = "✅ Download started!";
-      } catch (err) {
-        console.error(err);
-        status.textContent = "❌ Failed to connect to the server.";
-      }
+    if (!res.ok || data.error) {
+      status.textContent = `❌ Error: ${data.error || 'Unknown error.'}`;
+      return;
     }
+
+    // Fetch the file using the filename
+    const fileRes = await fetch(`https://fe29-99-106-85-136.ngrok-free.app/file/${data.filename}`);
+    const blob = await fileRes.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `download.${format}`;
+    a.click();
+
+    status.textContent = "✅ Download started!";
+  } catch (err) {
+    console.error(err);
+    status.textContent = "❌ Failed to connect to the server.";
+  }
+}
   </script>
 </body>
 </html>

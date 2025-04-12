@@ -2,75 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouTube Downloader</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
+      font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      margin-top: 5rem;
     }
     input, select, button {
-      padding: 10px;
-      margin: 10px;
-      font-size: 16px;
+      padding: 0.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
     }
-    input, select {
-      width: 300px;
-    }
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .status {
+    #status {
       margin-top: 1rem;
-      font-style: italic;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>YouTube Downloader</h1>
-  <input type="text" id="ytLink" placeholder="Paste YouTube link here" />
+  <h1>Download from YouTube</h1>
+  <input type="text" id="ytLink" placeholder="Enter YouTube link" size="40" />
   <select id="format">
     <option value="mp4">MP4 (Video)</option>
     <option value="mp3">MP3 (Audio)</option>
   </select>
   <button onclick="download()">Download</button>
-  <div class="status" id="status"></div>
+  <p id="status"></p>
 
   <script>
-    function download() {
+    async function download() {
       const link = document.getElementById('ytLink').value.trim();
       const format = document.getElementById('format').value;
       const status = document.getElementById('status');
 
       if (!link) {
-        status.textContent = "Please enter a valid YouTube URL.";
+        status.textContent = "⚠️ Please enter a valid YouTube URL.";
         return;
       }
 
-      // Simulate download
-      status.textContent = `Starting download for ${format.toUpperCase()}...`;
+      status.textContent = "⏳ Processing your request...";
 
-      // In a real app, you'd make a request to your backend here
-      setTimeout(() => {
-        status.textContent = `✅ Your ${format.toUpperCase()} is ready (this is just a mockup).`;
-      }, 2000);
+      try {
+        const res = await fetch("http://https://fe29-99-106-85-136.ngrok-free.app:3000/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: link, format: format })
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          status.textContent = `❌ Error: ${error.error}`;
+          return;
+        }
+
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `download.${format}`;
+        a.click();
+
+        status.textContent = "✅ Download started!";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Failed to connect to the server.";
+      }
     }
   </script>
 </body>

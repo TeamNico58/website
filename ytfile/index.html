@@ -47,7 +47,7 @@
       status.textContent = "⏳ Processing your request...";
 
       try {
-        const res = await fetch("http://https://fe29-99-106-85-136.ngrok-free.app:3000/download", {
+        const res = await fetch("http://https://fe29-99-106-85-136.ngrok-free.app/download", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: link, format: format })

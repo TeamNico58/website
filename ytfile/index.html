@@ -34,6 +34,8 @@
   <p id="status"></p>
 
   <script>
+    const SERVER_URL = 'https://fe29-99-106-85-136.ngrok-free.app';
+
     async function startDownload() {
       const url = document.getElementById('ytLink').value.trim();
       const format = document.getElementById('format').value;
@@ -41,14 +43,14 @@
       status.textContent = "Starting download...";
 
       try {
-        const res = await fetch('/download', {
+        const res = await fetch(`${SERVER_URL}/download`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, format })
         });
 
         const data = await res.json();
-        if (!res.ok) {
+        if (!res.ok || data.error) {
           status.textContent = `❌ Error: ${data.error}`;
           return;
         }
@@ -56,23 +58,27 @@
         const { uid, file_url } = data;
         status.textContent = "🔄 Processing video...";
 
-        // Poll for status
+        // Poll for status every 3 seconds
         let pollInterval = setInterval(async () => {
-          const check = await fetch(`/status/${uid}`);
+          const check = await fetch(`${SERVER_URL}/status/${uid}`);
           const result = await check.json();
+
           if (result.status === 'ready') {
             clearInterval(pollInterval);
             status.textContent = "✅ Ready! Downloading...";
 
             const a = document.createElement('a');
-            a.href = file_url;
+            a.href = `${SERVER_URL}${file_url}`;
             a.download = '';
             a.click();
 
-            // Cleanup after download
+            // Optional: Cleanup request after 5 seconds
             setTimeout(() => {
-              fetch(`/cleanup/${file_url.split('/').pop()}`, { method: 'DELETE' });
+              fetch(`${SERVER_URL}/cleanup/${file_url.split('/').pop()}`, {
+                method: 'DELETE'
+              });
             }, 5000);
+
           } else if (result.status.startsWith('error')) {
             clearInterval(pollInterval);
             status.textContent = `❌ ${result.status}`;

@@ -2,12 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Install Scarlet App</title>
+  <title>Installing Scarlet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    #countdown {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Tap the button below to install:</h2>
-  <a href="itms-services://?action=download-manifest&url=https://balancer.usescarlet.com/assets/org.4b17b9ac-7c28-4a35-b428-4e220ca52889.plist" style="font-size: 18px; padding: 10px; background-color: #007bff; color: white; border-radius: 6px; text-decoration: none;">
-    Install App
-  </a>
+  <h1>Preparing Install...</h1>
+  <p>The install will begin automatically in <span id="countdown">10</span> seconds.</p>
+
+  <script>
+    let seconds = 10;
+    const countdown = document.getElementById('countdown');
+    const manifestUrl = 'https://balance.usescarlet.com/assets/org.4b17b9ac-7c28-4a35-b428-4e220ca52889.plist';
+    const installUrl = `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
+
+    const timer = setInterval(() => {
+      seconds--;
+      countdown.textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = installUrl;
+      }
+    }, 1000);
+  </script>
 </body>
 </html>

@@ -1,80 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Site in Blank Page</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full-Screen Site Viewer</title>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+    }
 
-        .container {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
+    button {
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 10px;
+        background-color: #4facfe;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 20px;
+    }
 
-        input[type="text"] {
-            width: 300px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
+    button:hover {
+        background-color: #00f2fe;
+    }
 
-        button {
-            padding: 10px 25px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            background-color: #4facfe;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #00f2fe;
-        }
-    </style>
+    iframe {
+        width: 80%;
+        height: 70%;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h2>Open a Website</h2>
-        <input type="text" id="urlInput" placeholder="Enter website URL">
-        <br>
-        <button onclick="openSite()">Open</button>
-    </div>
 
-    <script>
-        function openSite() {
-            const url = document.getElementById('urlInput').value;
-            if (!url) {
-                alert('Please enter a URL!');
-                return;
-            }
+<button onclick="showFullScreen()">Show Site Full Screen</button>
 
-            // Ensure it has a protocol
-            const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : 'https://' + url;
-            
-            const newWindow = window.open('about:blank', '_blank');
-            if (newWindow) {
-                newWindow.location.href = fullUrl;
-            } else {
-                alert('Popup blocked! Please allow popups for this site.');
-            }
-        }
-    </script>
+<iframe id="siteFrame" src="" allowfullscreen></iframe>
+
+<script>
+function showFullScreen() {
+    const iframe = document.getElementById('siteFrame');
+    iframe.src = "https://teamnico58.github.io/testing3";
+    
+    if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+    } else if (iframe.webkitRequestFullscreen) { /* Safari */
+        iframe.webkitRequestFullscreen();
+    } else if (iframe.msRequestFullscreen) { /* IE11 */
+        iframe.msRequestFullscreen();
+    }
+}
+</script>
+
 </body>
 </html>
